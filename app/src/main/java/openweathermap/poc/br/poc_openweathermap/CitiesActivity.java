@@ -1,5 +1,6 @@
 package openweathermap.poc.br.poc_openweathermap;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,12 +19,6 @@ import openweathermap.poc.br.poc_openweathermap.adapters.CityAdapter;
 import openweathermap.poc.br.poc_openweathermap.adapters.RecyclerTouchListener;
 import openweathermap.poc.br.poc_openweathermap.helpers.Helpers;
 import openweathermap.poc.br.poc_openweathermap.models.City;
-import openweathermap.poc.br.poc_openweathermap.models.Favorite;
-import openweathermap.poc.br.poc_openweathermap.services.WeatherClient;
-import openweathermap.poc.br.poc_openweathermap.services.WeatherContract;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class CitiesActivity extends AppCompatActivity {
 
@@ -61,24 +56,12 @@ public class CitiesActivity extends AppCompatActivity {
                 City city = mCityAdapter.getList().get(position);
 
                 Log.d(TAG, "Cidade selecionada: " + city.getName());
-                WeatherContract weatherContract = WeatherClient.getClient().create(WeatherContract.class);
-                Call<Favorite> call = weatherContract.getTemperature(city.getId(), getString(R.string.appid));
 
-                call.enqueue(new Callback<Favorite>() {
-                    @Override
-                    public void onResponse(Call<Favorite> call, Response<Favorite> response) {
-                        Favorite favorite = response.body();
-                    }
+                Intent intent = new Intent(CitiesActivity.this, DetailCityActivity.class);
+                intent.putExtra("CITY_ID", city.getId());
+                intent.putExtra("FAVORITE", false);
 
-                    @Override
-                    public void onFailure(Call<Favorite> call, Throwable t) {
-                        call.cancel();
-
-                        Log.d(TAG, "onFailure " + t.getMessage());
-                    }
-                });
-
-
+                startActivity(intent);
             }
 
             @Override

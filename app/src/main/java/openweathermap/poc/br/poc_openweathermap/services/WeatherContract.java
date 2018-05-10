@@ -10,7 +10,7 @@ import retrofit2.http.Query;
  */
 
 public interface WeatherContract {
-    //http://api.openweathermap.org/data/2.5/weather?id=3470127&appid=8506ad2c74c3c69fbdd1708ec177fdf2&lang=pt&units=metric
-    @GET("/data/2.5/weather?")
+
+    @GET("/data/2.5/weather?lang=pt&units=metric")
     Call<Favorite> getTemperature(@Query("id") int cityId, @Query("appid") String appId);
 }

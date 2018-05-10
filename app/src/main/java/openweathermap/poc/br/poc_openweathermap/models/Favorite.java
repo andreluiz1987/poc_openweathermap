@@ -1,5 +1,6 @@
 package openweathermap.poc.br.poc_openweathermap.models;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -13,7 +14,7 @@ public class Favorite  extends RealmObject {
     private int id;
     private City city;
     private Main main;
-    private Weather weather;
+    private RealmList<Weather> weather;
     private boolean active;
 
     public int getId() {
@@ -32,11 +33,11 @@ public class Favorite  extends RealmObject {
         this.main = main;
     }
 
-    public Weather getWeather() {
+    public RealmList<Weather>  getWeathers() {
         return weather;
     }
 
-    public void setWeather(Weather weather) {
+    public void setWeather(RealmList<Weather>  weathers) {
         this.weather = weather;
     }
 

@@ -38,15 +38,10 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
     @Override
     public void onBindViewHolder(FavoriteAdapter.FavoriteViewHolder holder, int position) {
 
-        if (favorites.size() > 0)
-            holder.txtMsgEmptyCity.setVisibility(View.GONE);
-        else
-            holder.cardView.setVisibility(View.VISIBLE);
-
         Favorite favorite = favorites.get(position);
 
-        holder.txtCityTemp.setText(String.valueOf(favorite.getMain().getTemp() + "ºC"));
-        holder.txtCityWeather.setText(favorite.getWeather().getDescription());
+        holder.txtCityTemp.setText(Math.round(favorite.getMain().getTemp()) + "ºC");
+        holder.txtCityWeather.setText(favorite.getWeathers().get(0).getMain());
 
         holder.txtCityName.setText(favorite.getCity().getName());
         holder.txtItemCity.setText(String.valueOf(favorite.getCity().getName().charAt(0)).toUpperCase());
@@ -68,7 +63,6 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
 
     class FavoriteViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView txtMsgEmptyCity;
         public TextView txtCityTemp;
         public TextView txtCityWeather;
         public TextView txtCityName;
@@ -80,7 +74,6 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
 
             txtCityTemp = itemView.findViewById(R.id.txt_city_temp);
             txtCityWeather = itemView.findViewById(R.id.txt_city_weather);
-            txtMsgEmptyCity = itemView.findViewById(R.id.txt_city_empty);
             cardView = itemView.findViewById(R.id.card_view_city_favorite);
             txtCityName = itemView.findViewById(R.id.txt_city_name);
             txtItemCity = itemView.findViewById(R.id.txt_item_row_city);
