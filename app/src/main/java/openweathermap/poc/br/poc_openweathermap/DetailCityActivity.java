@@ -20,6 +20,8 @@ import openweathermap.poc.br.poc_openweathermap.Connections.ConnectionNet;
 import openweathermap.poc.br.poc_openweathermap.helpers.MessageHelpers;
 import openweathermap.poc.br.poc_openweathermap.models.City;
 import openweathermap.poc.br.poc_openweathermap.models.Favorite;
+import openweathermap.poc.br.poc_openweathermap.presenter.DetailContract;
+import openweathermap.poc.br.poc_openweathermap.presenter.DetailPresenter;
 import openweathermap.poc.br.poc_openweathermap.services.WeatherClient;
 import openweathermap.poc.br.poc_openweathermap.services.WeatherContract;
 import retrofit2.Call;
@@ -28,7 +30,7 @@ import retrofit2.Response;
 
 import static android.view.View.GONE;
 
-public class DetailCityActivity extends AppCompatActivity {
+public class DetailCityActivity extends AppCompatActivity implements DetailContract.View {
 
     private static final String TAG = DetailCityActivity.class.getName();
 
@@ -45,7 +47,9 @@ public class DetailCityActivity extends AppCompatActivity {
     @BindView(R.id.panel_progress)
     LinearLayout pnlProgress;
 
-    Favorite mFavorite;
+    //Favorite mFavorite;
+
+    DetailPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +66,10 @@ public class DetailCityActivity extends AppCompatActivity {
 
         // TODO: 10/05/2018 tratar exceções
 
-        showProgressBar(View.VISIBLE);
+        presenter = new DetailPresenter(this);
 
         if (ConnectionNet.hasConnection(this)) {
-            getDetailCity(city_id, isFavorite);
+            presenter.getFavoriteData(city_id, isFavorite);
         } else {
             MessageHelpers.showToast(this, "Verifique sua conexão com a internet.");
             showProgressBar(View.GONE);
@@ -78,83 +82,7 @@ public class DetailCityActivity extends AppCompatActivity {
 
     @OnClick(R.id.img_favorite)
     public void setFavorite() {
-
-        Realm realm = Realm.getDefaultInstance();
-
-        Favorite favoriteSave = realm.where(Favorite.class).equalTo("id", mFavorite.getId()).findFirst();
-
-        if (favoriteSave == null) {
-
-            realm.beginTransaction();
-            realm.copyToRealmOrUpdate(mFavorite);
-            realm.commitTransaction();
-            realm.close();
-
-            imgFavorite.setImageResource(R.drawable.ic_favorite_selected);
-
-        } else {
-
-            imgFavorite.setImageResource(R.drawable.ic_star_unselected);
-
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    RealmResults results = realm.where(Favorite.class).equalTo("id", mFavorite.getId()).findAll();
-                    results.deleteAllFromRealm();
-                }
-            });
-        }
-    }
-
-    private void showData(final boolean isFavorite) {
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                txtCityName.setText(mFavorite.getCity().getName());
-                txtDateNoew.setText(new Date().toString());
-                txtWeather.setText(mFavorite.getWeathers().get(0).getDescription());
-                txtTemp.setText(Math.round(mFavorite.getMain().getTemp()) + "ºC");
-
-                if (isFavorite)
-                    imgFavorite.setImageResource(R.drawable.ic_favorite_selected);
-                else
-                    imgFavorite.setImageResource(R.drawable.ic_star_unselected);
-            }
-        });
-    }
-
-    private void getDetailCity(int city_id, final boolean isFavorite) {
-
-        Realm realm = Realm.getDefaultInstance();
-        final City city = realm.where(City.class).equalTo("id", city_id).findFirst();
-
-        WeatherContract weatherContract = WeatherClient.getClient().create(WeatherContract.class);
-        Call<Favorite> call = weatherContract.getTemperature(city_id, getString(R.string.appid));
-
-        call.enqueue(new Callback<Favorite>() {
-            @Override
-            public void onResponse(Call<Favorite> call, Response<Favorite> response) {
-
-                mFavorite = response.body();
-                mFavorite.setCity(city);
-                mFavorite.setActive(true);
-
-                showData(isFavorite);
-
-                showProgressBar(GONE);
-            }
-
-            @Override
-            public void onFailure(Call<Favorite> call, Throwable t) {
-                call.cancel();
-
-                Log.d(TAG, "onFailure " + t.getMessage());
-
-                showProgressBar(GONE);
-            }
-        });
+        presenter.saveFavorite();
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -165,5 +93,45 @@ public class DetailCityActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void showDialog() {
+        pnlProgress.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideDialog() {
+        pnlProgress.setVisibility(GONE);
+    }
+
+    @Override
+    public void setData(final Favorite favorite, final boolean isFavorite) {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                txtCityName.setText(favorite.getCity().getName());
+                txtDateNoew.setText(new Date().toString());
+                txtWeather.setText(favorite.getWeathers().get(0).getDescription());
+                txtTemp.setText(Math.round(favorite.getMain().getTemp()) + "ºC");
+
+                if (isFavorite)
+                    imgFavorite.setImageResource(R.drawable.ic_favorite_selected);
+                else
+                    imgFavorite.setImageResource(R.drawable.ic_star_unselected);
+            }
+        });
+    }
+
+    @Override
+    public void setFavoriteSelected() {
+        imgFavorite.setImageResource(R.drawable.ic_favorite_selected);
+    }
+
+    @Override
+    public void setFavoriteUnselected() {
+        imgFavorite.setImageResource(R.drawable.ic_star_unselected);
     }
 }

@@ -30,7 +30,6 @@ public class HomeActivity extends AppCompatActivity implements HomeContract.View
     TextView txtEmptyFavorite;
 
     HomeContract.Presenter mPresenter;
-    //FavoriteAdapter mFavoriteAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,15 +80,8 @@ public class HomeActivity extends AppCompatActivity implements HomeContract.View
         public void onClick(View view, int position) {
 
             mPresenter.onClick();
-
             Favorite favorite = ((FavoriteAdapter)recyclerView.getAdapter()).getList().get(position);
             navigateToFavoritePage(favorite);
-
-//            Intent intent = new Intent(HomeActivity.this, DetailCityActivity.class);
-//            intent.putExtra("CITY_ID", favorite.getCity().getId());
-//            intent.putExtra("FAVORITE", true);
-//
-//            startActivity(intent);
         }
 
         @Override
@@ -113,6 +105,7 @@ public class HomeActivity extends AppCompatActivity implements HomeContract.View
 
         if (adapter.getList().size() == 0) {
             recyclerView.setVisibility(View.GONE);
+            txtEmptyFavorite.setVisibility(View.VISIBLE);
         } else {
             recyclerView.setVisibility(View.VISIBLE);
             txtEmptyFavorite.setVisibility(View.GONE);
@@ -120,23 +113,4 @@ public class HomeActivity extends AppCompatActivity implements HomeContract.View
 
         recyclerView.setAdapter(adapter);
     }
-
-//    private FavoriteAdapter getFavoriteAdapter() {
-//
-//        List<Favorite> favoriteList = getFavorites();
-//        return new FavoriteAdapter(this, favoriteList);
-//    }
-
-//    private List<Favorite> getFavorites() {
-//
-//        List<Favorite> favoriteList = new ArrayList<>();
-//
-//        Realm realm = Realm.getDefaultInstance();
-//        RealmResults results = realm.where(Favorite.class).equalTo("active", true).findAll();
-//        favoriteList = realm.copyFromRealm(results);
-//        realm.close();
-//
-//        return favoriteList;
-//    }
-
 }
